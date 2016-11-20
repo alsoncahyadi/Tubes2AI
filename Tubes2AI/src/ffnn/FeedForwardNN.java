@@ -12,7 +12,7 @@ import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Normalize;
 
 public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
-  WeightedInstancesHandler, Serializable{
+        WeightedInstancesHandler, Serializable {
 
     private Layer inputLayer;
     private Layer outputLayer;
@@ -174,11 +174,11 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
         normalize.setInputFormat(insNonNormalized);
         Instances ins = Filter.useFilter(insNonNormalized, normalize);
         System.out.println("> Done Normalizing");
-        
+
         lastBuiltInstances = insNonNormalized;
-        
+
         int numInstances = ins.numInstances();
-        
+
         System.out.println("class index: " + ins.classIndex());
 
         double[][] in = new double[numInstances][ins.numAttributes() - 1];
@@ -231,16 +231,22 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
             }
             System.out.println("");
         }
-        System.out.println("outlen: " + out.length);
+        System.out.println("epochs         : " + iterations);
+        System.out.println("input neurons  : " + nIn);
+        System.out.println("hidden neurons : " + nHid);
+        System.out.println("output neurons : " + nOut);
+
         //DOING ANN
         for (int i = 0; i < iterations; i++) {
+            double sumErrorThreshold = 0;
             for (int j = 0; j < ins.numInstances(); j++) {
                 this.feedForward(in[j]);
                 this.backPropagate(out[j]);
                 this.generateErrorThreshold(out[j]);
+                sumErrorThreshold += getErrorThreshold();
             }
-            if (i % (iterations/20) == 0) {
-                System.out.println("ET-" + i + ": " + getErrorThreshold());
+            if (i % (iterations / 20) == 0) {
+                System.out.println("ET-" + i + ": " + (sumErrorThreshold / ins.numInstances()));
             }
         }
 
@@ -252,12 +258,11 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
         for (int i = 0; i < in.length; i++) {
             System.out.println("> Classify-" + i + ": " + classify(in[i]));
         }*/
-
         System.out.println("NORMALIZE INFO");
-        System.out.println("Max Array: " + normalize.getMaxArray().toString());
-        System.out.println("Min ARray: " + normalize.getMinArray().toString());
-        System.out.println("Scale: " + normalize.getScale());
-        System.out.println("Translation: " + normalize.getTranslation());
+        System.out.println("> Max Array: " + normalize.getMaxArray().toString());
+        System.out.println("> Min ARray: " + normalize.getMinArray().toString());
+        System.out.println("> Scale: " + normalize.getScale());
+        System.out.println("> Translation: " + normalize.getTranslation());
         System.out.println(normalize.getRevision());
     }
 

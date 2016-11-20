@@ -27,8 +27,9 @@ public class Main {
      */
     public static void main(String[] args) throws Exception {
         BufferedReader breader = null;
+        String dataSetName = "team";
         //breader = new BufferedReader(new FileReader("C:\\Program Files\\Weka-3-8\\data\\iris.arff"));
-        breader = new BufferedReader(new FileReader("C:\\Users\\alson\\Desktop\\tb2ai\\dataset\\team.arff"));
+        breader = new BufferedReader(new FileReader("C:\\Users\\alson\\Desktop\\tb2ai\\dataset\\" + dataSetName + ".arff"));
 
         Instances ins = new Instances(breader);
         //ins.setClassIndex(ins.attribute("class").index());
@@ -58,7 +59,7 @@ public class Main {
         
         System.out.println("SAVE MODEL");
         System.out.println("> Start Saving Model");
-        String path = System.getProperty("user.home") + "/Desktop/tb2ai/classifier/" + ffnn.getnHid() + "-" + ffnn.getIterations() + ".clf";
+        String path = System.getProperty("user.home") + "/Desktop/tb2ai/classifier/" + dataSetName + "-" + ffnn.getnHid() + "-" + ffnn.getIterations() + ".clf";
         weka.core.SerializationHelper.write(path, ffnn);
         System.out.println("> Done Saving Model");
         System.out.println("> Model saved at: " + path);
