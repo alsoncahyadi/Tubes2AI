@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import weka.core.Instances;
 import ffnn.FeedForwardNN;
+import weka.classifiers.Evaluation;
 
 /**
  *
@@ -39,5 +40,15 @@ public class Main {
         System.out.println("Classify 0: " + ffnn.classify(dataTest0));
         System.out.println("Classify 1: " + ffnn.classify(dataTest1));
         System.out.println("Classify 2: " + ffnn.classify(dataTest2));
+
+        
+        Evaluation eval = new Evaluation(ins);
+        eval.evaluateModel(ffnn, ins);
+        //OUTPUT
+        
+        System.out.println(eval.toSummaryString("=== Stratified cross-validation ===\n" + "=== Summary ===", true));
+        System.out.println(eval.toClassDetailsString("=== Detailed Accuracy By Class ==="));
+        System.out.println(eval.toMatrixString("===Confusion matrix==="));
+        System.out.println(eval.fMeasure(1) + " " + eval.recall(1));
     }
 }

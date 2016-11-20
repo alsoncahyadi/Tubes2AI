@@ -6,7 +6,9 @@
 package ffnn;
 
 import weka.classifiers.AbstractClassifier;
-import weka.core.Instances;
+import weka.core.*;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Normalize;
 
 public class FeedForwardNN extends AbstractClassifier {
 
@@ -15,6 +17,8 @@ public class FeedForwardNN extends AbstractClassifier {
     private Layer hiddenLayer;
     private double errorThreshold;
     private double[] desiredOutputs;
+    private Normalize normalize = new Normalize();
+
 
     /*public FeedForwardNN(int in, int out, int nhid, int hid) {
         inputLayer = new Layer(in);
@@ -119,7 +123,16 @@ public class FeedForwardNN extends AbstractClassifier {
     }
 
     @Override
-    public void buildClassifier(Instances ins) throws Exception {
+    public void buildClassifier(Instances insNonNormalized) throws Exception {
+
+        //System.out.println("INITIAL:");
+        //outputLayer.printLayerNonDebug();
+        //NORMALIZE
+        System.out.println("NORMALIZE INSTANCES");
+        System.out.println("> Start Normalizing");
+        normalize.setInputFormat(insNonNormalized);
+        Instances ins = Filter.useFilter(insNonNormalized, normalize);
+        System.out.println("> Done Normalizing");
 
         int numInstances = ins.numInstances();
 
@@ -152,11 +165,13 @@ public class FeedForwardNN extends AbstractClassifier {
         System.out.println("> Start Reading Inputs");
         for (int i = 0; i < in.length; i++) {
             int j = 0;
-            while (j < in[i].length - 1) {
-                if (ins.instance(i).attribute(j).name() != "class") {
-                    in[i][j] = ins.instance(i).value(j);
+            int cnt = 0;
+            while (cnt < in[i].length) {
+                if (ins.instance(i).attribute(cnt).name() != "class") {
+                    in[i][j] = ins.instance(i).value(cnt);
                     j++;
                 }
+                cnt++;
             }
         }
         System.out.println("> Done Reading Inputs");
@@ -173,7 +188,7 @@ public class FeedForwardNN extends AbstractClassifier {
 
         //DOING ANN
         double sumErrorThreshold = 0;
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 100000; i++) {
             for (int j = 0; j < ins.numInstances(); j++) {
                 this.feedForward(in[j]);
                 this.backPropagate(out[j]);
@@ -183,11 +198,39 @@ public class FeedForwardNN extends AbstractClassifier {
         }
 
         outputLayer.printLayerNonDebug();
-        
+
         //COBA CLASSIFY
         System.out.println("CLASSIFY: ");
         for (int i = 0; i < in.length; i++) {
             System.out.println("> Classify-" + (i + 73) + ": " + classify(in[i]));
         }
+
+        System.out.println("NORMALIZE INFO");
+        System.out.println("Max Array: " + normalize.getMaxArray().toString());
+        System.out.println("Min ARray: " + normalize.getMinArray().toString());
+        System.out.println("Scale: " + normalize.getScale());
+        System.out.println("Translation: " + normalize.getTranslation());
     }
+    /*
+    @Override
+    public double classifyInstance(Instance instance) throws Exception {
+        int nAttr = instance.numAttributes();
+        for (int i = 0; i < instance.numAttributes(); i++) {
+            if (instance.attribute(i).name().equals("class")) {
+                nAttr--;
+            }
+        }
+        double[] dataTest = new double[nAttr];
+
+        int count = 0;
+        int j = 0;
+        while (count < nAttr) {
+            if (!instance.attribute(count).name().equals("class")) {
+                dataTest[j] = instance.value(count);
+                j++;
+            };
+            count++;
+        }
+        return (double) classify(dataTest);
+    } */
 }

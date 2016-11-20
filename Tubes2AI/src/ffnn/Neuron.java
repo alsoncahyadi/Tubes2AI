@@ -16,7 +16,7 @@ public class Neuron {
     private double bias;
     private double errorThreshold;
 
-    private static final double learningrate = 1;
+    private static final double learningrate = 0.01;
 
     public Neuron() {
 
