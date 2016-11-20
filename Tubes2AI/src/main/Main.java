@@ -40,7 +40,7 @@ public class Main {
             numOutput = 1;
         }
 
-        FeedForwardNN ffnn = new FeedForwardNN(ins.numAttributes() - 1, 11, numOutput, ins.numAttributes() - 1);
+        FeedForwardNN ffnn = new FeedForwardNN(ins.numAttributes() - 1, 11, numOutput, ins.numAttributes() - 1, 200000);
         ffnn.buildClassifier(ins);
 
         Evaluation eval = new Evaluation(ins);
@@ -54,7 +54,7 @@ public class Main {
         
         System.out.println("SAVE MODEL");
         System.out.println("> Start Saving Model");
-        String path = System.getProperty("user.home") + "/Desktop/tb2ai/classifier/" + "newModelFFNN.clf";
+        String path = System.getProperty("user.home") + "/Desktop/tb2ai/classifier/" + ffnn.getnHid() + "-" + ffnn.getIterations() + ".clf";
         weka.core.SerializationHelper.write(path, ffnn);
         System.out.println("> Done Saving Model");
     }

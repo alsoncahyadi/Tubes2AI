@@ -22,6 +22,10 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
     private Normalize normalize = new Normalize();
     private Instances lastBuiltInstances;
     private int classIndex;
+    private int iterations;
+    private int nIn;
+    private int nOut;
+    private int nHid;
 
 
     /*public FeedForwardNN(int in, int out, int nhid, int hid) {
@@ -35,18 +39,41 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
         }
     }*/
     //constructor for 0 hidden layer
-    public FeedForwardNN(int in, int out, int classIndex) {
+    public FeedForwardNN(int in, int out, int classIndex, int hiddenNeurons, int iterations) {
         inputLayer = new Layer(in);
         outputLayer = new Layer(out, in);
         this.classIndex = classIndex;
+        this.iterations = iterations;
+        nIn = in;
+        nOut = out;
     }
 
     //constructor for 1 hidden layer
-    public FeedForwardNN(int in, int hid, int out, int classIndex) {
+    public FeedForwardNN(int in, int hid, int out, int classIndex, int hiddenNeurons, int iterations) {
         inputLayer = new Layer(in);
         hiddenLayer = new Layer(hid, in);
         outputLayer = new Layer(out, hid);
         this.classIndex = classIndex;
+        this.iterations = iterations;
+        nIn = in;
+        nOut = out;
+        nHid = hid;
+    }
+
+    public int getIterations() {
+        return iterations;
+    }
+
+    public int getnIn() {
+        return nIn;
+    }
+
+    public int getnOut() {
+        return nOut;
+    }
+
+    public int getnHid() {
+        return nHid;
     }
 
     public Layer getOutputLayer() {
@@ -205,13 +232,13 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
         }
 
         //DOING ANN
-        for (int i = 0; i < 400000; i++) {
+        for (int i = 0; i < iterations; i++) {
             for (int j = 0; j < ins.numInstances(); j++) {
                 this.feedForward(in[j]);
                 this.backPropagate(out[j]);
                 this.generateErrorThreshold(out[j]);
             }
-            if (i % 5000 == 0) {
+            if (i % (iterations/20) == 0) {
                 System.out.println("ET-" + i + ": " + getErrorThreshold());
             }
         }

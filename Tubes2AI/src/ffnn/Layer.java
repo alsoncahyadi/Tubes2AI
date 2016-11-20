@@ -89,6 +89,6 @@ public class Layer implements Serializable{
         for (int i=0; i< neurons.length; i++) {
             errorThreshold += neurons[i].getErrorThreshold();
         }
-        return errorThreshold;
+        return errorThreshold / neurons.length;
     }
 }
