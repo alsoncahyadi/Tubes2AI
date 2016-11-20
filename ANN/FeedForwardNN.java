@@ -2,6 +2,7 @@ public class FeedForwardNN {
     private Layer inputLayer;
     private Layer outputLayer;
     private Layer hiddenLayer;
+    private double errorThreshold;
     private double[] desiredOutputs;
 
 
@@ -32,6 +33,10 @@ public class FeedForwardNN {
 
     public Layer getOutputLayer() {
         return outputLayer;
+    }
+
+    public double getErrorThreshold() {
+        return errorThreshold;
     }
 
     //hitung output untuk setiap neuron dengan input inputs    
@@ -98,5 +103,10 @@ public class FeedForwardNN {
         return maxidx;
     }
 
-
+    public void generateErrorThreshold(double[] outputs) {
+        System.out.println("====== Calculate Error Threshold on Output Layer ======");
+        desiredOutputs = outputs;
+        outputLayer.generateErrorThreshold(outputs);
+        errorThreshold = outputLayer.getErrorThreshold();
+    }
 }

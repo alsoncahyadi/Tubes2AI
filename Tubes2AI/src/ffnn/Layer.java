@@ -1,3 +1,10 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package ffnn;
+
 public class Layer {
     private Neuron[] neurons;
 
@@ -31,8 +38,15 @@ public class Layer {
 
     public void printLayer() {
         for (int i=0 ; i<neurons.length ; i++) {
-            System.out.println("Neuron " + i);
+            //System.out.println("Neuron " + i);
             neurons[i].printNeuron();
+        }
+    }
+    
+    public void printLayerNonDebug() {
+        for (int i=0 ; i<neurons.length ; i++) {
+            System.out.println("Neuron " + i);
+            neurons[i].printNeuronNonDebug();
         }
     }
 
