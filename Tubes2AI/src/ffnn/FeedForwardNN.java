@@ -18,6 +18,7 @@ public class FeedForwardNN extends AbstractClassifier {
     private double errorThreshold;
     private double[] desiredOutputs;
     private Normalize normalize = new Normalize();
+    private Instances lastBuiltInstances;
 
 
     /*public FeedForwardNN(int in, int out, int nhid, int hid) {
@@ -187,7 +188,6 @@ public class FeedForwardNN extends AbstractClassifier {
         }
 
         //DOING ANN
-        double sumErrorThreshold = 0;
         for (int i = 0; i < 100000; i++) {
             for (int j = 0; j < ins.numInstances(); j++) {
                 this.feedForward(in[j]);
@@ -210,11 +210,12 @@ public class FeedForwardNN extends AbstractClassifier {
         System.out.println("Min ARray: " + normalize.getMinArray().toString());
         System.out.println("Scale: " + normalize.getScale());
         System.out.println("Translation: " + normalize.getTranslation());
+        System.out.println(normalize.getRevision());
     }
-    /*
+
     @Override
     public double classifyInstance(Instance instance) throws Exception {
-        int nAttr = instance.numAttributes();
+        /*int nAttr = instance.numAttributes();
         for (int i = 0; i < instance.numAttributes(); i++) {
             if (instance.attribute(i).name().equals("class")) {
                 nAttr--;
@@ -230,7 +231,21 @@ public class FeedForwardNN extends AbstractClassifier {
                 j++;
             };
             count++;
+        }*/
+        if (normalize.input(instance)) {
+            instance = normalize.output();
+            double[] dataTest = new double[instance.numAttributes()];
+            for (int i = 0; i < instance.numAttributes(); i++) {
+                dataTest[i] = instance.value(i);
+            }
+            return (double) classify(dataTest);
+        } else {
+            return -1;
         }
-        return (double) classify(dataTest);
-    } */
+    }
+    /*
+    @Override
+    public double[] distributionForInstance(Instance instance) throws Exception {
+        return null;
+    }*/
 }
