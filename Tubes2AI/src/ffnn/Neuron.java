@@ -17,6 +17,7 @@ public class Neuron implements Serializable{
     private double bias;
     private double errorThreshold;
 
+    private static final double learningrate = 0.2;
 
     public Neuron() {
 

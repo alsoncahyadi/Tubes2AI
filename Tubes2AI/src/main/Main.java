@@ -46,6 +46,7 @@ public class Main {
         int nOutputLayer = numOutput;
         System.out.println("numOutput: " + numOutput);
         FeedForwardNN ffnn = new FeedForwardNN(nInputLayer, nHiddenLayer, nOutputLayer, iterations);
+        //ffnn = (FeedForwardNN) weka.core.SerializationHelper.read("C:\\Users\\alson\\Desktop\\tb2ai\\classifier\\team-100-100000-0.2.clf");
         ffnn.buildClassifier(ins);
 
         Evaluation eval = new Evaluation(ins);
