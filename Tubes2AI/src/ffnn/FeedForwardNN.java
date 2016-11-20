@@ -19,6 +19,7 @@ public class FeedForwardNN extends AbstractClassifier {
     private double[] desiredOutputs;
     private Normalize normalize = new Normalize();
     private Instances lastBuiltInstances;
+    private int classIndex;
 
 
     /*public FeedForwardNN(int in, int out, int nhid, int hid) {
@@ -32,16 +33,18 @@ public class FeedForwardNN extends AbstractClassifier {
         }
     }*/
     //constructor for 0 hidden layer
-    public FeedForwardNN(int in, int out) {
+    public FeedForwardNN(int in, int out, int classIndex) {
         inputLayer = new Layer(in);
         outputLayer = new Layer(out, in);
+        this.classIndex = classIndex;
     }
 
     //constructor for 1 hidden layer
-    public FeedForwardNN(int in, int hid, int out) {
+    public FeedForwardNN(int in, int hid, int out, int classIndex) {
         inputLayer = new Layer(in);
         hiddenLayer = new Layer(hid, in);
         outputLayer = new Layer(out, hid);
+        this.classIndex = classIndex;
     }
 
     public Layer getOutputLayer() {
@@ -156,7 +159,7 @@ public class FeedForwardNN extends AbstractClassifier {
         //READ ALGORITHM
         System.out.println("READ OUTPUTS");
         System.out.println("> Start Reading Outputs");
-        classes = ins.attributeToDoubleArray(ins.attribute("class").index());
+        classes = ins.attributeToDoubleArray(classIndex);
         for (int i = 0; i < classes.length; i++) {
             out[i][(int) classes[i]] = 1.0;
         }
@@ -179,7 +182,8 @@ public class FeedForwardNN extends AbstractClassifier {
             int j = 0;
             int cnt = 0;
             while (cnt < in[i].length) {
-                if (ins.instance(i).attribute(cnt).name() != "class") {
+                if (cnt != classIndex) {
+                    //if (ins.instance(i).attribute(cnt).name() != "class") {
                     in[i][j] = ins.instance(i).value(cnt);
                     j++;
                 }
@@ -199,13 +203,15 @@ public class FeedForwardNN extends AbstractClassifier {
         }
 
         //DOING ANN
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 50000; i++) {
             for (int j = 0; j < ins.numInstances(); j++) {
                 this.feedForward(in[j]);
                 this.backPropagate(out[j]);
                 this.generateErrorThreshold(out[j]);
             }
-            System.out.println("Error Threshold: " + getErrorThreshold());
+            if (i % 5000 == 0) {
+                System.out.println("ET-" + i + ": " + getErrorThreshold());
+            }
         }
 
         outputLayer.printLayerNonDebug();
