@@ -35,7 +35,12 @@ public class Main {
         double[] dataTest1 = {7.0, 3.2, 4.7, 1.4};
         double[] dataTest2 = {6.3, 3.3, 6.0, 2.5};
 
-        FeedForwardNN ffnn = new FeedForwardNN(ins.numAttributes() - 1, 1, ins.numClasses());
+        int numOutput = ins.numClasses();
+        if (numOutput == 2) {
+            numOutput = 1;
+        }
+
+        FeedForwardNN ffnn = new FeedForwardNN(ins.numAttributes() - 1, 1, numOutput);
         ffnn.buildClassifier(ins);
         System.out.println("Classify 0: " + ffnn.classify(dataTest0));
         System.out.println("Classify 1: " + ffnn.classify(dataTest1));

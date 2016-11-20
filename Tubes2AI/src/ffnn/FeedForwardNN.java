@@ -102,18 +102,29 @@ public class FeedForwardNN extends AbstractClassifier {
         assert (inputs.length == inputLayer.getNeurons().length);
         feedForward(inputs);
         double[] result = new double[outputLayer.getNeurons().length];
-        double max = 0;
-        int maxidx = 0;
-        int i;
-        for (i = 0; i < result.length; i++) {
-            result[i] = outputLayer.getNeurons()[i].getOutput();
-            //System.out.print("res[" + i + "]: " + result[i] + ", ");
-            if (result[i] > max) {
-                max = result[i];
-                maxidx = i;
+
+        int ret;
+        if (outputLayer.getNeurons().length == 1) {
+            if (outputLayer.getNeurons()[0].getOutput() > 0.5) {
+                ret = 0;
+            } else {
+                ret = 1;
             }
+        } else {
+            double max = 0;
+            int maxidx = 0;
+            int i;
+            for (i = 0; i < result.length; i++) {
+                result[i] = outputLayer.getNeurons()[i].getOutput();
+                //System.out.print("res[" + i + "]: " + result[i] + ", ");
+                if (result[i] > max) {
+                    max = result[i];
+                    maxidx = i;
+                }
+            }
+            ret = maxidx;
         }
-        return maxidx;
+        return ret;
     }
 
     public void generateErrorThreshold(double[] outputs) {
