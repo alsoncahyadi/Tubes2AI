@@ -5,7 +5,9 @@
  */
 package ffnn;
 
-public class Layer {
+import java.io.Serializable;
+
+public class Layer implements Serializable{
     private Neuron[] neurons;
 
     //constructor for hidden and output layer

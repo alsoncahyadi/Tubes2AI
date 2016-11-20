@@ -5,12 +5,14 @@
  */
 package ffnn;
 
+import java.io.Serializable;
 import weka.classifiers.AbstractClassifier;
 import weka.core.*;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Normalize;
 
-public class FeedForwardNN extends AbstractClassifier {
+public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
+  WeightedInstancesHandler, Serializable{
 
     private Layer inputLayer;
     private Layer outputLayer;
@@ -203,7 +205,7 @@ public class FeedForwardNN extends AbstractClassifier {
         }
 
         //DOING ANN
-        for (int i = 0; i < 50000; i++) {
+        for (int i = 0; i < 400000; i++) {
             for (int j = 0; j < ins.numInstances(); j++) {
                 this.feedForward(in[j]);
                 this.backPropagate(out[j]);

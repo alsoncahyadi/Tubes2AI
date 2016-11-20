@@ -5,9 +5,10 @@
  */
 package ffnn;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Neuron {
+public class Neuron implements Serializable{
 
     private double output;
     //private Link[] input;
