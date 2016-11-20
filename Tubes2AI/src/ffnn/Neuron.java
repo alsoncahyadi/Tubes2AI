@@ -158,6 +158,6 @@ public class Neuron implements Serializable{
     public void calculateErrorThreshold(double desired) {
         double out = getOutput();
         double err = java.lang.Math.pow((desired - out), 2);
-        setErrorThreshold(err);
+        setErrorThreshold(err); 
     }
 }

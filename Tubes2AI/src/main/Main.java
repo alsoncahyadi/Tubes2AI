@@ -39,8 +39,12 @@ public class Main {
         if (numOutput == 2) {
             numOutput = 1;
         }
-
-        FeedForwardNN ffnn = new FeedForwardNN(ins.numAttributes() - 1, 11, numOutput, ins.numAttributes() - 1, 200000);
+        int iterations = 100000;
+        int nInputLayer = ins.numAttributes() - 1;
+        int nHiddenLayer = 100;
+        int nOutputLayer = numOutput;
+        System.out.println("numOutput: " + numOutput);
+        FeedForwardNN ffnn = new FeedForwardNN(nInputLayer, nHiddenLayer, nOutputLayer, iterations);
         ffnn.buildClassifier(ins);
 
         Evaluation eval = new Evaluation(ins);
@@ -57,5 +61,6 @@ public class Main {
         String path = System.getProperty("user.home") + "/Desktop/tb2ai/classifier/" + ffnn.getnHid() + "-" + ffnn.getIterations() + ".clf";
         weka.core.SerializationHelper.write(path, ffnn);
         System.out.println("> Done Saving Model");
+        System.out.println("> Model saved at: " + path);
     }
 }

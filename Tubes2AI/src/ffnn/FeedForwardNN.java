@@ -21,7 +21,6 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
     private double[] desiredOutputs;
     private Normalize normalize = new Normalize();
     private Instances lastBuiltInstances;
-    private int classIndex;
     private int iterations;
     private int nIn;
     private int nOut;
@@ -39,21 +38,19 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
         }
     }*/
     //constructor for 0 hidden layer
-    public FeedForwardNN(int in, int out, int classIndex, int hiddenNeurons, int iterations) {
+    public FeedForwardNN(int in, int out, int iterations) {
         inputLayer = new Layer(in);
         outputLayer = new Layer(out, in);
-        this.classIndex = classIndex;
         this.iterations = iterations;
         nIn = in;
         nOut = out;
     }
 
     //constructor for 1 hidden layer
-    public FeedForwardNN(int in, int hid, int out, int classIndex, int hiddenNeurons, int iterations) {
+    public FeedForwardNN(int in, int hid, int out, int iterations) {
         inputLayer = new Layer(in);
         hiddenLayer = new Layer(hid, in);
         outputLayer = new Layer(out, hid);
-        this.classIndex = classIndex;
         this.iterations = iterations;
         nIn = in;
         nOut = out;
@@ -177,18 +174,22 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
         normalize.setInputFormat(insNonNormalized);
         Instances ins = Filter.useFilter(insNonNormalized, normalize);
         System.out.println("> Done Normalizing");
-
+        
+        lastBuiltInstances = insNonNormalized;
+        
         int numInstances = ins.numInstances();
+        
+        System.out.println("class index: " + ins.classIndex());
 
-        double[][] in = new double[numInstances][ins.numAttributes()];
+        double[][] in = new double[numInstances][ins.numAttributes() - 1];
         double[][] out = new double[numInstances][ins.numClasses()];
         System.out.println(ins.numAttributes());
         double[] classes = null;
 
-        //READ ALGORITHM
+        //READ OUTPUTS
         System.out.println("READ OUTPUTS");
         System.out.println("> Start Reading Outputs");
-        classes = ins.attributeToDoubleArray(classIndex);
+        classes = ins.attributeToDoubleArray(ins.classIndex());
         for (int i = 0; i < classes.length; i++) {
             out[i][(int) classes[i]] = 1.0;
         }
@@ -197,7 +198,7 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
         //OUTPUT OUTPUTS
         System.out.println("OUTPUTS:");
         for (int i = 0; i < out.length; i++) {
-            System.out.print("  " + (i + 73) + ") ");
+            System.out.print("  " + i + ") ");
             for (int j = 0; j < out[i].length; j++) {
                 System.out.print(out[i][j] + " | ");
             }
@@ -211,26 +212,26 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
             int j = 0;
             int cnt = 0;
             while (cnt < in[i].length) {
-                if (cnt != classIndex) {
-                    //if (ins.instance(i).attribute(cnt).name() != "class") {
+                if (cnt != ins.classIndex()) {
                     in[i][j] = ins.instance(i).value(cnt);
                     j++;
                 }
                 cnt++;
             }
+            //System.out.println("cnt: " + cnt);
         }
         System.out.println("> Done Reading Inputs");
 
         //OUTPUT INPUTS
         System.out.println("INPUTS: ");
         for (int i = 0; i < in.length; i++) {
-            System.out.print("  " + (i + 73) + ") ");
+            System.out.print("  " + i + ") ");
             for (int j = 0; j < in[i].length; j++) {
                 System.out.print(in[i][j] + " | ");
             }
             System.out.println("");
         }
-
+        System.out.println("outlen: " + out.length);
         //DOING ANN
         for (int i = 0; i < iterations; i++) {
             for (int j = 0; j < ins.numInstances(); j++) {
@@ -246,10 +247,11 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
         outputLayer.printLayerNonDebug();
 
         //COBA CLASSIFY
+        /*
         System.out.println("CLASSIFY: ");
         for (int i = 0; i < in.length; i++) {
-            System.out.println("> Classify-" + (i + 73) + ": " + classify(in[i]));
-        }
+            System.out.println("> Classify-" + i + ": " + classify(in[i]));
+        }*/
 
         System.out.println("NORMALIZE INFO");
         System.out.println("Max Array: " + normalize.getMaxArray().toString());
