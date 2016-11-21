@@ -33,7 +33,8 @@ public class Main {
         ////READ INSTANCES
         BufferedReader breader = null;
         String dataSetName = "team";
-        breader = new BufferedReader(new FileReader(System.getProperty("user.home") + "\\Desktop\\tb2ai\\dataset\\" + dataSetName + ".arff"));
+        //breader = new BufferedReader(new FileReader(System.getProperty("user.home") + "\\Desktop\\tb2ai\\dataset\\" + dataSetName + ".arff"));
+        breader = new BufferedReader(new FileReader("D:\\Team.arff"));
 
         Instances ins = new Instances(breader);
         ins.setClassIndex(ins.numAttributes() - 1);
@@ -46,9 +47,9 @@ public class Main {
         }
 
         ////INITIALIZATION PARAMETERS
-        int iterations = 500000;
+        int iterations = 200000;
         int nInputLayer = ins.numAttributes() - 1;
-        int nHiddenLayer = 25;
+        int nHiddenLayer = 100;
         int nOutputLayer = numOutput;
 
         double learningRate = 0.3;
@@ -76,7 +77,8 @@ public class Main {
 
         System.out.println("SAVE MODEL");
         System.out.println("> Start Saving Model");
-        String path = System.getProperty("user.home") + "/Desktop/tb2ai/classifier/" + dataSetName + "-" + ffnn.getnHid() + "-" + ffnn.getIterations() + "-" + learningRate + "-" + "acc" + ".model";
+        //String path = System.getProperty("user.home") + "/Desktop/tb2ai/classifier/" + dataSetName + "-" + ffnn.getnHid() + "-" + ffnn.getIterations() + "-" + learningRate + "-" + "acc" + ".model";
+        String path = "D:\\Model\\" + dataSetName + "-" + ffnn.getnHid() + "-" + ffnn.getIterations() + "-" + learningRate + "-" + "acc" + ".model";
         weka.core.SerializationHelper.write(path, ffnn);
         System.out.println("> Done Saving Model");
         System.out.println("> Model saved at: " + path);

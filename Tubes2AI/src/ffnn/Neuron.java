@@ -27,7 +27,7 @@ public class Neuron implements Serializable{
         Random r = new Random();
         weights = new double[nprev];
         for (int i = 0; i < nprev; i++) {
-            weights[i] = r.nextDouble() / 10 - 0.05;
+            weights[i] = r.nextDouble() - 0.5;
             weights[i] = (double) java.lang.Math.round(weights[i] * 100d) / 100d;
             //weights[i] = 0;
         }
