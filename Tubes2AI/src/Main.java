@@ -144,10 +144,12 @@ public class Main {
         int n = train.numAttributes();
         Instance newins = new DenseInstance(n);
         newins.setDataset(train);
-        for (int i = 0; i < n - 1; i++) {
-            System.out.print("Input attribute " + train.attribute(i).name() + ": ");
-            float val = sc.nextFloat();
-            newins.setValue(i, val);
+        for (int i = 0; i < n; i++) {
+            if (i != train.classIndex()) {
+                System.out.print("Input attribute " + train.attribute(i).name() + ": ");
+                float val = sc.nextFloat();
+                newins.setValue(i, val);
+            }
         }
         return newins;
     }
