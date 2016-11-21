@@ -5,11 +5,13 @@
  */
 package naivebayes;
 
+import java.io.Serializable;
+
 /**
  *
  * @author alson
  */
-public class Data {
+public class Data implements Serializable {
     private int column;      //atribut
     private int value;        //nilai dari atribut
     private int result;      //kelas

@@ -5,6 +5,7 @@
  */
 package naivebayes;
 
+import java.io.Serializable;
 import java.util.Vector;
 import weka.classifiers.AbstractClassifier;
 import weka.core.Instance;
@@ -13,7 +14,7 @@ import weka.core.converters.ConverterUtils;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.*;
 
-public class NBayes extends AbstractClassifier {
+public class NBayes extends AbstractClassifier implements Serializable {
 
     Vector<Data> data = new Vector();
     int classidx = 0;
