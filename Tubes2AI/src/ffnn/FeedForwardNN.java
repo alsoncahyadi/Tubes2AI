@@ -231,10 +231,13 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
             }
             System.out.println("");
         }
-        System.out.println("epochs         : " + iterations);
-        System.out.println("input neurons  : " + nIn);
-        System.out.println("hidden neurons : " + nHid);
-        System.out.println("output neurons : " + nOut);
+        System.out.println("CLASSIFIER INFO");
+        System.out.println("> epochs         : " + iterations);
+        System.out.println("> input neurons  : " + nIn);
+        System.out.println("> hidden neurons : " + nHid);
+        System.out.println("> output neurons : " + nOut);
+        System.out.println("> learning rate  : " + Cons.getLearningRate());
+        System.out.println("> decrase const  : " + Cons.getDecreaseConst());
 
         //DOING ANN
         for (int i = 0; i < iterations; i++) {
@@ -246,7 +249,8 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
                 sumErrorThreshold += getErrorThreshold();
             }
             if (i % (iterations / 20) == 0) {
-                System.out.println("ET-" + i + ": " + (sumErrorThreshold / ins.numInstances()));
+                Cons.setLearningRate(Cons.getLearningRate() / Cons.calculateScale(i, iterations));
+                System.out.println("(" + (int) i * 100 / iterations + "%)" + "ET-" + i + ": " + (sumErrorThreshold / ins.numInstances()) + " | LR: " + Cons.getLearningRate());
             }
         }
 
@@ -254,16 +258,12 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
 
         //COBA CLASSIFY
         /*
-        System.out.println("CLASSIFY: ");
-        for (int i = 0; i < in.length; i++) {
-            System.out.println("> Classify-" + i + ": " + classify(in[i]));
-        }*/
         System.out.println("NORMALIZE INFO");
         System.out.println("> Max Array: " + normalize.getMaxArray().toString());
         System.out.println("> Min ARray: " + normalize.getMinArray().toString());
         System.out.println("> Scale: " + normalize.getScale());
         System.out.println("> Translation: " + normalize.getTranslation());
-        System.out.println(normalize.getRevision());
+        System.out.println(normalize.getRevision());*/
     }
 
     @Override

@@ -17,7 +17,7 @@ public class Neuron implements Serializable{
     private double bias;
     private double errorThreshold;
 
-    private static final double learningrate = 0.2;
+    //private static final double learningrate = Cons.getLearningRate();
 
     public Neuron() {
 
@@ -29,6 +29,7 @@ public class Neuron implements Serializable{
         for (int i = 0; i < nprev; i++) {
             weights[i] = r.nextDouble() / 10 - 0.05;
             weights[i] = (double) java.lang.Math.round(weights[i] * 100d) / 100d;
+            //weights[i] = 0;
         }
         bias = r.nextDouble() / 10 - 0.05;
         bias = (double) java.lang.Math.round(bias * 100d) / 100d;
@@ -147,7 +148,7 @@ public class Neuron implements Serializable{
     public void calculateWeight(Neuron[] prev) {
         for (int j = 0; j < prev.length; j++) {
             double w = getWeight(j);
-            w = w + getError() * prev[j].getOutput() * learningrate;   //LEARNING RATE!!!!
+            w = w + getError() * prev[j].getOutput() * Cons.getLearningRate();   //LEARNING RATE!!!!
             setWeight(j, w);
         }
         double b = getBias();
@@ -158,7 +159,7 @@ public class Neuron implements Serializable{
     public void calculateErrorThreshold(double desired) {
         double out = getOutput();
         //double err = java.lang.Math.pow((desired - out), 2);
-        double err = (desired - out);
+        double err = (desired - out) * (desired-out);
         setErrorThreshold(err); 
     }
 }
