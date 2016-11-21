@@ -105,16 +105,16 @@ public class Main {
         classifier.buildClassifier(train);
     }
 
-    public static void fulltraining() throws Exception {
+    public static void fulltraining(Instances test) throws Exception {
         //melakukan pembelajaran dengan skema full training
-        eval = new Evaluation(train);
-        eval.evaluateModel(classifier, train);
+        eval = new Evaluation(test);
+        eval.evaluateModel(classifier, test);
     }
 
-    public static void crossValidate() throws Exception {
+    public static void crossValidate(Instances test) throws Exception {
         //melakukan pembelajaran dengan skema 10-fold cross validation
-        eval = new Evaluation(train);
-        eval.crossValidateModel(classifier, train, 10, new Random(1));
+        eval = new Evaluation(test);
+        eval.crossValidateModel(classifier, test, 10, new Random(1));
     }
 
     public static void printEvalResult() throws Exception {
@@ -135,7 +135,7 @@ public class Main {
 
     public static void loadModel(String modelfile) throws Exception {
         //membaca model dari file eksternal
-        classifier = (FeedForwardNN) weka.core.SerializationHelper.read(modelfile);
+        classifier = (Classifier) weka.core.SerializationHelper.read(modelfile);
     }
 
     public static Instance makeNewInstance() {
@@ -214,14 +214,22 @@ public class Main {
         }
 
         //use schema
-        System.out.println();
+		System.out.println();
+        
+        System.out.print("Path to test dataset: ");
+        filename = sc.next();
+        ArffLoader loader = new ArffLoader();
+        loader.setFile(new File(filename));
+        Instances test = loader.getDataSet();
+        test.setClassIndex(test.numAttributes() - 1);
         System.out.println("Schema 1. 10-fold Cross Validate 2. Full Training");
         System.out.print("Use schema : ");
         String svar = sc.next();
         if ("1".equals(svar)) {
-            crossValidate();
-        } else if ("2".equals(svar)) {
-            fulltraining();
+            crossValidate(test);
+        } 
+        else if ("2".equals(svar)) {
+            fulltraining(test);
         }
 
         //Mencetak hasil eval
