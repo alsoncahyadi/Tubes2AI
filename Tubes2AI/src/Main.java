@@ -224,6 +224,9 @@ public class Main {
         loader.setFile(new File(filename));
         Instances test = loader.getDataSet();
         test.setClassIndex(test.numAttributes() - 1);
+        System.out.print("Insert class index: ");
+        int clsIndex = sc.nextInt();
+        test.setClassIndex(clsIndex);
         System.out.println("Schema 1. 10-fold Cross Validate 2. Full Training");
         System.out.print("Use schema : ");
         String svar = sc.next();
