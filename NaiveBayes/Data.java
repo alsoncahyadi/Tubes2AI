@@ -37,7 +37,7 @@ public class Data {
     }
 
     public void setResult(String result) {
-        this.result = result;
+        this.result = new String(result);
     }
 
     public void setfreq(double freq) {
@@ -51,7 +51,7 @@ public class Data {
     public Data(String coll, String val, String rslt, double fr){
         column = coll;
         value = val;
-        result = new String (rslt);
+        result = new String(rslt);
         freq = fr;
         total = 0;
     }
