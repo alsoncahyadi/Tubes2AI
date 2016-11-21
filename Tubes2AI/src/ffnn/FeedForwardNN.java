@@ -211,7 +211,7 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
         for (int i = 0; i < in.length; i++) {
             int j = 0;
             int cnt = 0;
-            while (cnt < in[i].length) {
+            while (cnt <= in[i].length) {
                 if (cnt != ins.classIndex()) {
                     in[i][j] = ins.instance(i).value(cnt);
                     j++;

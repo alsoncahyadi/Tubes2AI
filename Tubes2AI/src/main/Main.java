@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
 import java.util.Date;
+import java.util.Scanner;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 
@@ -29,7 +30,7 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
-
+        Scanner sc = new Scanner(System.in);
         ////READ INSTANCES
         BufferedReader breader = null;
         String dataSetName = "team";
@@ -37,7 +38,10 @@ public class Main {
         breader = new BufferedReader(new FileReader("D:\\Team.arff"));
 
         Instances ins = new Instances(breader);
-        ins.setClassIndex(ins.numAttributes() - 1);
+        int clsIndex = ins.numAttributes() - 1;
+        System.out.print("Insert class index: ");
+        clsIndex = sc.nextInt();
+        ins.setClassIndex(clsIndex);
         breader.close();
 
         ////CHECK IF BOOLEAN
@@ -54,11 +58,27 @@ public class Main {
 
         double learningRate = 0.3;
         double decreaseConst = 0.1;
+        
+        
+        System.out.print("Input number of iterations: ");
+        iterations = sc.nextInt();
+        System.out.print("Input number of neurons in hidden layer: ");
+        nHiddenLayer = sc.nextInt();
+        System.out.print("Input learning rate: ");
+        learningRate = sc.nextDouble();
+        System.out.print("Input decrease constant: ");
+        decreaseConst = sc.nextDouble();
+        
 
         ////INITIALIZATION
         Cons.setLearningRate(learningRate);
         Cons.setDecreaseConst(decreaseConst);
-        FeedForwardNN ffnn = new FeedForwardNN(nInputLayer, nHiddenLayer, nOutputLayer, iterations);
+        FeedForwardNN ffnn;
+        if (nHiddenLayer == 0) {
+            ffnn = new FeedForwardNN(nInputLayer, nOutputLayer, iterations);
+        } else {
+            ffnn = new FeedForwardNN(nInputLayer, nHiddenLayer, nOutputLayer, iterations);
+        }
         ////LOAD OR BUILD
         Date start = new Date();
         ffnn.buildClassifier(ins);
