@@ -39,8 +39,7 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
     }*/
     //constructor for 0 hidden layer
     public FeedForwardNN(int in, int out, int iterations) {
-        inputLayer = new Layer(in);
-        outputLayer = new Layer(out, in);
+
         this.iterations = iterations;
         nIn = in;
         nOut = out;
@@ -48,9 +47,7 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
 
     //constructor for 1 hidden layer
     public FeedForwardNN(int in, int hid, int out, int iterations) {
-        inputLayer = new Layer(in);
-        hiddenLayer = new Layer(hid, in);
-        outputLayer = new Layer(out, hid);
+
         this.iterations = iterations;
         nIn = in;
         nOut = out;
@@ -165,6 +162,15 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
 
     @Override
     public void buildClassifier(Instances insNonNormalized) throws Exception {
+
+        if (nHid != 0) {
+            inputLayer = new Layer(nIn);
+            hiddenLayer = new Layer(nHid, nIn);
+            outputLayer = new Layer(nOut, nHid);
+        } else {
+            inputLayer = new Layer(nIn);
+            outputLayer = new Layer(nOut, nIn);
+        }
 
         //System.out.println("INITIAL:");
         //outputLayer.printLayerNonDebug();
