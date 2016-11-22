@@ -294,8 +294,12 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
         if (normalize.input(instance)) {
             instance = normalize.output();
             double[] dataTest = new double[instance.numAttributes()];
+            int j = 0;
             for (int i = 0; i < instance.numAttributes(); i++) {
-                dataTest[i] = instance.value(i);
+                if (i != instance.classIndex()) {
+                    dataTest[j] = instance.value(i);
+                    j++;
+                }
             }
             return (double) classify(dataTest);
         } else {
