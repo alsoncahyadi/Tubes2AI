@@ -170,7 +170,7 @@ public class Main {
         return (FeedForwardNN) classifier;
     }
 
-    public static void batchFfnn(int batchSize) throws Exception {
+    public static void batchFfnn(int batchSize, Instances test) throws Exception {
         //ASSUMPTION: ErrT never exceeds 100
         double minErrT = 100;
         FeedForwardNN bestFfnn = null;
@@ -219,7 +219,52 @@ public class Main {
             System.out.println("");
 
             currFfnn = ffnn(clsIndex, iterations, nHiddenLayer, learningRate, decreaseConst);
-            errT[i] = currFfnn.getErrorThreshold();
+
+            ////TEST the datatest
+            int numInstances = test.numInstances();
+
+            double[][] in = new double[numInstances][test.numAttributes() - 1];
+            double[][] out = new double[numInstances][test.numClasses()];
+            double[] classes = null;
+
+            //READ OUTPUTS
+            System.out.println("READ OUTPUTS");
+            System.out.println("> Start Reading Outputs");
+            classes = test.attributeToDoubleArray(test.classIndex());
+            for (int j = 0; j < classes.length; j++) {
+                out[j][(int) classes[j]] = 1.0;
+            }
+            System.out.println("> Done Reading Outputs");
+
+            //READ INPUTS
+            System.out.println("READ INPUTS");
+            System.out.println("> Start Reading Inputs");
+            for (int k = 0; k < in.length; k++) {
+                int j = 0;
+                int cnt = 0;
+                while (cnt <= in[k].length) {
+                    if (cnt != test.classIndex()) {
+                        in[k][j] = test.instance(k).value(cnt);
+                        j++;
+                    }
+                    cnt++;
+                }
+            }
+            System.out.println("> Done Reading Inputs");
+            
+            //CALCULATE TEST ERROR
+            double sumErrorThreshold = 0;
+            for (int j = 0; j < test.numInstances(); j++) {
+                currFfnn.feedForward(in[j]);
+                currFfnn.generateErrorThreshold(out[j]);
+                sumErrorThreshold += currFfnn.getErrorThreshold();
+            }
+            double currErrorThreshold = (sumErrorThreshold / test.numInstances());
+            
+            System.out.println(">> Err Threshold Test(" + i + "): " + currErrorThreshold);
+            
+            //STORE ERROR
+            errT[i] = currErrorThreshold;
             if (errT[i] < minErrT) {
                 minErrT = errT[i];
                 bestFfnn = currFfnn;
@@ -230,7 +275,7 @@ public class Main {
             System.out.println("   >" + i + ": " + errT[i]);
         }
         classifier = bestFfnn;
-        System.out.println("Best ET in batch: " + bestFfnn.getErrorThreshold());
+        System.out.println("Best ET in batch: " + minErrT);
     }
 
     public static void fulltraining(Instances test) throws Exception {
@@ -304,10 +349,39 @@ public class Main {
         System.out.print("Please input path to dataset : ");
         Scanner sc = new Scanner(System.in);
         String filename = sc.next();
-
+        
         // load data
         load(filename);
 
+        //READ DATATEST
+        System.out.print("Path to test dataset: ");
+        filename = sc.next();
+        ArffLoader loader = new ArffLoader();
+        loader.setFile(new File(filename));
+        Instances test = loader.getDataSet();
+        test.setClassIndex(test.numAttributes() - 1);
+        System.out.print("Insert class index: ");
+        int clsIndex = sc.nextInt();
+        test.setClassIndex(clsIndex);
+        System.out.println("Selected class attribute: " + test.attribute(test.classIndex()));
+
+        //DELETE 26 or 27
+        if (clsIndex == 26) {
+            System.out.println("> Removing index 27:" + test.attribute(27).name());
+            Remove remove = new Remove();
+            remove.setAttributeIndices("28");
+            remove.setInputFormat(test);
+            test = Filter.useFilter(test, remove);
+            System.out.println("> Index 27 deleted");
+        } else if (clsIndex == 27) {
+            System.out.println("> Removing index 26:" + test.attribute(26).name());
+            Remove remove = new Remove();
+            remove.setAttributeIndices("27");
+            remove.setInputFormat(test);
+            test = Filter.useFilter(test, remove);
+            System.out.println("> Index 26 deleted");
+        }
+        
         //memilih load atau pembelajaran baru
         System.out.println();
         System.out.println("Train new model or load model : 1.New   2.Load");
@@ -337,7 +411,7 @@ public class Main {
                 if ("1".equals(mvar)) {
                     System.out.print("Insert Number of batch size: ");
                     int batchSize = sc.nextInt();
-                    batchFfnn(batchSize);
+                    batchFfnn(batchSize, test);
                 } else if ("2".equals(mvar)) {
                     ffnn();
                 }
@@ -355,33 +429,7 @@ public class Main {
         //use schema
         System.out.println();
 
-        System.out.print("Path to test dataset: ");
-        filename = sc.next();
-        ArffLoader loader = new ArffLoader();
-        loader.setFile(new File(filename));
-        Instances test = loader.getDataSet();
-        test.setClassIndex(test.numAttributes() - 1);
-        System.out.print("Insert class index: ");
-        int clsIndex = sc.nextInt();
-        test.setClassIndex(clsIndex);
-        System.out.println("Selected class attribute: " + test.attribute(test.classIndex()));
-
-        //DELETE 26 or 27
-        if (clsIndex == 26) {
-            System.out.println("> Removing index 27:" + test.attribute(27).name());
-            Remove remove = new Remove();
-            remove.setAttributeIndices("28");
-            remove.setInputFormat(test);
-            test = Filter.useFilter(test, remove);
-            System.out.println("> Index 27 deleted");
-        } else if (clsIndex == 27) {
-            System.out.println("> Removing index 26:" + test.attribute(26).name());
-            Remove remove = new Remove();
-            remove.setAttributeIndices("27");
-            remove.setInputFormat(test);
-            test = Filter.useFilter(test, remove);
-            System.out.println("> Index 26 deleted");
-        }
+        
         System.out.println("Schema 1. 10-fold Cross Validate 2. Full Training");
         System.out.print("Use schema : ");
         String svar = sc.next();
