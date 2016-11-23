@@ -6,13 +6,18 @@
 package naivebayes;
 
 import java.io.Serializable;
+import java.util.Scanner;
 import java.util.Vector;
 import weka.classifiers.AbstractClassifier;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
+
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.*;
+import weka.filters.unsupervised.attribute.Discretize;
+import weka.filters.unsupervised.attribute.Remove;
+import weka.filters.unsupervised.attribute.Remove.*;
 
 public class NBayes extends AbstractClassifier implements Serializable {
 
@@ -22,57 +27,56 @@ public class NBayes extends AbstractClassifier implements Serializable {
 
     @Override
     public void buildClassifier(Instances ins) throws Exception {
+        //Filtering jadi nominal semua
+        Instances disc_dataset = null;
+        String[] options = new String[2];
+        options[0]="-R";
+        options[1]="first-last";
+        
+       
+        //Discretize filtering
+        Discretize disc = new Discretize();
+        disc.setOptions(options);
+        disc.setInputFormat(ins);
+        disc_dataset = Filter.useFilter(ins, disc);
+        
+        ins = disc_dataset;
 
         //Mendelete instance dengan atribut missing
         for (int i = 0; i < ins.numAttributes(); i++) {
             ins.deleteWithMissing(i);
         }
         ins.deleteWithMissingClass();   // Mendelete instance dengan missing class
-
-        //Klo numeric convert ke nominal
-        if (ins.classAttribute().isNumeric()) {
-            System.out.println("It's Numeric!");
-            Discretize filter = new Discretize();
-
-            filter.setInputFormat(ins);
-            ins = Filter.useFilter(ins, filter);
-        }
-
+        
+        
         //inisiasi Vektor
-        for (int i = 0; i < ins.numAttributes(); i++) {
-            for (int j = 0; j < ins.attribute(i).numValues(); j++) {
+        for (int i = 0; i <ins.numAttributes(); i++) {
+            for (int j = 0; j <ins.attribute(i).numValues(); j++) {
                 int k = 0;
                 while (k < ins.numClasses()) {
                     Data datum = new Data(i, j, k, 0);
                     data.add(datum);
                     k++;
-                }
+                }   
             }
         }
-        /*for (int i = 0; i < data.size(); i++) {
-            System.out.println(data.get(i).getcolumn() + " " + data.get(i).getValue() + " " + data.get(i).getResult());
-        }*/
+        
         //menghitung freq dari setiap data pada Vector yang ada pada instance
         for (int i = 0; i < ins.numInstances(); i++) {
-            //System.out.println("> i: " + i);
             for (int j = 0; j < ins.numAttributes(); j++) {
-                /*System.out.println("   > j: " + j);
-                System.out.println("   > " + ins.instance(i).value(j));*/
- /*for (int k = 0; k < ins.instance(i).attribute(j).numValues(); k++) {
-                    System.out.println(ins.instance(i).value(j));
-                }*/
-                //System.out.println(ins.instance(0).attribute(0).value(0));
                 int index = getIndex(data, j, (int) ins.instance(i).value(j), (int) ins.instance(i).value(ins.classIndex()));
-                //int index = getIndex(data, j, ins.instance(i).attribute(j).indexOfValue(ins.instance(i).toString(j)), ins.instance(i).attribute(ins.classIndex()).indexOfValue(ins.instance(i).toString(ins.classIndex())));
                 data.get(index).setfreq(data.get(index).getfreq() + 1);
             }
         }
 
+        //Untuk  mengahapus vektor yang tidak diperlukan
+        //Karena adanya kombinasi pada kelas yang tidak diperlukan
         classidx = ins.classIndex();
         int a = 0;
+        
         if (classidx > 0) {
             for (int i = 0; i < classidx; i++) {
-                a += Math.pow(ins.attribute(i).numValues(), 2);
+                a += (ins.attribute(i).numValues()*ins.numClasses());
             }
             for (int i = a; i < a + ins.numClasses(); i++) {
                 while (data.get(i).getfreq() == 0) {
@@ -87,7 +91,7 @@ public class NBayes extends AbstractClassifier implements Serializable {
             }
         }
 
-        //Menghitung total pembagi setiap attribut
+        //Menghitung total pembagi untuk setiap attribute (jumlah kelas yang bersesuaian)
         for (int i = 0; i < data.size(); i++) {
             for (int j = a; j < a + ins.numClasses(); j++) {
                 if (data.get(i).getResult() == data.get(j).getResult() && data.get(j).getResult() == data.get(j).getValue()) {
@@ -95,9 +99,10 @@ public class NBayes extends AbstractClassifier implements Serializable {
                 }
             }
         }
-
+        
+        //inisialisasi tabel untuk probabilitas
         prob = new double[data.size()];
-
+        //menghitung probabilitas setiap attribute & kelas
         for (int i = 0; i < data.size(); i++) {
             if (data.get(i).getcolumn() == ins.classIndex()) {
                 prob[i] = data.get(i).getfreq() / ins.numInstances();
@@ -105,15 +110,13 @@ public class NBayes extends AbstractClassifier implements Serializable {
                 prob[i] = data.get(i).getfreq() / data.get(i).getTotal();
             }
         }
-        /*for (int i = 0; i<data.size(); i++) {
-            System.out.println(i + " " + data.get(i).getcolumn() + " " + data.get(i).getValue() + " " + data.get(i).getResult() + "  "  + data.get(i).getfreq() +  " " + data.get(i).getTotal() + " " + prob[i]);
-        }*/
     }
 
     public double classifyInstance(Instance tes) {
         double[] probMax = new double[tes.numClasses()];
         int idx = 0;
-
+        //inisialisasi untuk mencari probabilitas dari attribut2 yang ada
+        //untuk dilakukan klasifikasi
         if (tes.classIndex() == 0) {
             for (int i = 0; i < tes.numClasses(); i++) {
                 probMax[i] = prob[i];
@@ -122,7 +125,7 @@ public class NBayes extends AbstractClassifier implements Serializable {
             int a = 0;
             if (classidx > 0) {
                 for (int i = 0; i < classidx; i++) {
-                    a += Math.pow(tes.attribute(i).numValues(), 2);
+                    a += (tes.attribute(i).numValues()*tes.numClasses());
                 }
                 for (int i = 0; i < tes.numClasses(); i++) {
                     probMax[i] = prob[a];
@@ -130,7 +133,8 @@ public class NBayes extends AbstractClassifier implements Serializable {
                 }
             }
         }
-
+        
+        //menghitung probabilitas setiap attribut dengan kemungkinan kelas yang ada
         for (int k = 0; k < tes.numClasses(); k++) {
             for (int j = 0; j < tes.numAttributes(); j++) {
                 if (j != tes.classIndex()) {
@@ -139,7 +143,7 @@ public class NBayes extends AbstractClassifier implements Serializable {
                 }
             }
         }
-
+        //output untuk nilai probabilitas maksimal
         int x = searchMax(probMax);
 
         return x;
@@ -153,33 +157,12 @@ public class NBayes extends AbstractClassifier implements Serializable {
                 imax = i;
             }
         }
-
+        //mengembalikan indeks yang memiliki nilai dari probabilitas paling besar
         return imax;
     }
 
-    public static double[] initializeProbClass(Instances dataset) {
-        double[] probClass = new double[dataset.numClasses()];
-        int a = dataset.classIndex();
-        int ix = 0;
-        if (a == 0) {
-            for (int i = 0; i < dataset.numClasses(); i++) {
-                probClass[i] = prob[i];
-            }
-        } else {
-            for (int i = 0; i < a; i++) {
-                a += dataset.attribute(i).numValues();
-            }
-            for (int i = 0; i < dataset.numClasses(); i++) {
-                probClass[i] = prob[a];
-                System.out.println("a : " + a);
-                a++;
-            }
-        }
-
-        return probClass;
-    }
-
     public static int getIndex(Vector<Data> input, int attr, int nilaiAttr, int namaKls) {
+        //digunakan untuk mnecari index pada vector 
         int i = 0;
         int index = -1;
         boolean found = false;
@@ -193,34 +176,4 @@ public class NBayes extends AbstractClassifier implements Serializable {
         }
         return index;
     }
-
-    ////Probability Table
-    // 1st => attribute
-    // 2nd => num values
-    // 3rd => class
-    /*
-    private double[][][] probT;
-    private double[] classes;
-    private int classIndex = 0;
-
-    @Override
-    public void buildClassifier(Instances ins) throws Exception {
-        classIndex = ins.classIndex();
-        int maxNumVal = 0;
-        
-        for (int i = 0; i < ins.numAttributes(); i++) {
-            if (maxNumVal < ins.attribute(i).numValues()) {
-                maxNumVal = ins.attribute(i).numValues();
-            }
-        }
-
-        probT = new double[ins.numAttributes() - 1][maxNumVal][ins.numClasses()];
-        classes = new double[ins.numClasses()];
-
-        for (int i = 0; i < ins.numInstances(); i++) {
-            for (int j = 0; j < ins.numAttributes(); j++) {
-                
-            }
-        }
-    }*/
 }
