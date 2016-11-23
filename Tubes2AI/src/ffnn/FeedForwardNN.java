@@ -230,6 +230,12 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
 
         //OUTPUT INPUTS
         System.out.println("INPUTS: ");
+        for (int i = 0; i < ins.numAttributes(); i++) {
+            if (i != ins.classIndex()) {
+                System.out.print(i + ")" + ins.attribute(i).name() + " | ");
+            }
+        }
+        System.out.println("");
         for (int i = 0; i < in.length; i++) {
             System.out.print("  " + i + ") ");
             for (int j = 0; j < in[i].length; j++) {

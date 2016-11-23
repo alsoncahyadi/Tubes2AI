@@ -28,6 +28,7 @@ import java.util.Scanner;
 import naivebayes.NBayes;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+import weka.filters.unsupervised.attribute.Remove;
 
 public class Main {
 
@@ -59,7 +60,23 @@ public class Main {
         System.out.print("Insert class index: ");
         int clsIndex = sc.nextInt();
         train.setClassIndex(clsIndex);
-        
+        System.out.println("Selected class attribute: " + train.attribute(train.classIndex()));
+
+        //DELETE 26 or 27
+        if (clsIndex == 26) {
+            System.out.println("> Removing index 27:" + train.attribute(27).name());
+            Remove remove = new Remove();
+            remove.setAttributeIndices("28");
+            remove.setInputFormat(train);
+            System.out.println("> Index 27 deleted:");
+        } else if (clsIndex == 27) {
+            System.out.println("> Removing index 26:" + train.attribute(26).name());
+            Remove remove = new Remove();
+            remove.setAttributeIndices("27");
+            remove.setInputFormat(train);
+            System.out.println("> Index 26 deleted");
+        }
+
         classifier = new NBayes();
         classifier.buildClassifier(train);
     }
@@ -69,6 +86,24 @@ public class Main {
         System.out.print("Insert class index: ");
         int clsIndex = sc.nextInt();
         train.setClassIndex(clsIndex);
+        System.out.println("Selected class attribute: " + train.attribute(train.classIndex()));
+
+        //DELETE 26 or 27
+        if (clsIndex == 26) {
+            System.out.println("> Removing index 27:" + train.attribute(27).name());
+            Remove remove = new Remove();
+            remove.setAttributeIndices("28");
+            remove.setInputFormat(train);
+            train = Filter.useFilter(train, remove);
+            System.out.println("> Index 27 deleted");
+        } else if (clsIndex == 27) {
+            System.out.println("> Removing index 26:" + train.attribute(26).name());
+            Remove remove = new Remove();
+            remove.setAttributeIndices("27");
+            remove.setInputFormat(train);
+            train = Filter.useFilter(train, remove);
+            System.out.println("> Index 26 deleted");
+        }
 
         ////CHECK IF BOOLEAN
         int numOutput = train.numClasses();
@@ -216,8 +251,8 @@ public class Main {
         }
 
         //use schema
-		System.out.println();
-        
+        System.out.println();
+
         System.out.print("Path to test dataset: ");
         filename = sc.next();
         ArffLoader loader = new ArffLoader();
@@ -227,13 +262,30 @@ public class Main {
         System.out.print("Insert class index: ");
         int clsIndex = sc.nextInt();
         test.setClassIndex(clsIndex);
+        System.out.println("Selected class attribute: " + test.attribute(test.classIndex()));
+
+        //DELETE 26 or 27
+        if (clsIndex == 26) {
+            System.out.println("> Removing index 27:" + test.attribute(27).name());
+            Remove remove = new Remove();
+            remove.setAttributeIndices("28");
+            remove.setInputFormat(test);
+            test = Filter.useFilter(test, remove);
+            System.out.println("> Index 27 deleted");
+        } else if (clsIndex == 27) {
+            System.out.println("> Removing index 26:" + test.attribute(26).name());
+            Remove remove = new Remove();
+            remove.setAttributeIndices("27");
+            remove.setInputFormat(test);
+            test = Filter.useFilter(test, remove);
+            System.out.println("> Index 26 deleted");
+        }
         System.out.println("Schema 1. 10-fold Cross Validate 2. Full Training");
         System.out.print("Use schema : ");
         String svar = sc.next();
         if ("1".equals(svar)) {
             crossValidate(test);
-        } 
-        else if ("2".equals(svar)) {
+        } else if ("2".equals(svar)) {
             fulltraining(test);
         }
 
