@@ -10,7 +10,7 @@ import java.io.Serializable;
 public class Layer implements Serializable{
     private Neuron[] neurons;
 
-    //constructor for hidden and output layer
+    //konstruktor untuk hidden dan output layer
     public Layer(int n, int nprev) {
         neurons = new Neuron[n];
         for (int i=0 ; i<n ; i++) {
@@ -18,7 +18,7 @@ public class Layer implements Serializable{
         }
     }
 
-    //constructor for input layer
+    //konstruktor untuk input layer
     public Layer(int n) {
         neurons = new Neuron[n];
         for (int i=0 ; i<n ; i++) {
@@ -30,17 +30,16 @@ public class Layer implements Serializable{
         return neurons;
     }
 
-    //sets output for inputlayer
+    //sets output (untuk inputlayer pada khususnya)
     public void setOutputs(double[] input) {
         assert(neurons.length == input.length);
         for (int i=0 ; i<neurons.length ; i++) {
             neurons[i].setOutput(input[i]);
         }
     }
-
+    
     public void printLayer() {
-        for (int i=0 ; i<neurons.length ; i++) {
-            //System.out.println("Neuron " + i);
+        for (int i=0 ; i<neurons.length ; i++) {            
             neurons[i].printNeuron();
         }
     }
@@ -52,32 +51,35 @@ public class Layer implements Serializable{
         }
     }
 
-    
+    //menghitung output untuk seluruh neuron pada layer
     public void generateOutput(Neuron[] prev) {
         for (int i=0 ; i<neurons.length ; i++) {
             neurons[i].calculateOutput(prev);        
         }
     }
 
-
+    //menghitung error untuk seluruh neuron output layer
     public void setOutputError(double[] desired) {
         for (int i=0 ; i<neurons.length ; i++) {
             neurons[i].calculateOutputError(desired[i]);
         }
     }
 
+    //menghitung error untuk seluruh neuron hidden layer
     public void setHiddenError(Neuron[] next) {
         for (int i=0 ; i<neurons.length ; i++) {
             neurons[i].calculateHiddenError(i, next);
         }
     }
 
+    //menghitung weight baru untuk seluruh neuron pada layer
     public void setNewWeight(Neuron[] prev) {
         for (int i=0 ; i<neurons.length ; i++) {
             neurons[i].calculateWeight(prev);
         }
     }
 
+    //menghitung error threshold pada layer
     public void generateErrorThreshold(double[] desired) {
         for (int i=0; i< neurons.length; i++) {
             neurons[i].calculateErrorThreshold(desired[i]);
