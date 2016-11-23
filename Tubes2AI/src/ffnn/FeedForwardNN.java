@@ -260,9 +260,10 @@ public class FeedForwardNN extends AbstractClassifier implements OptionHandler,
                 this.generateErrorThreshold(out[j]);
                 sumErrorThreshold += getErrorThreshold();
             }
-            if (i % (iterations / 20) == 0) {
+            errorThreshold = (sumErrorThreshold / ins.numInstances());
+            if ((i % (iterations / 20) == 0) || (i == (iterations - 1))) {
                 Cons.setLearningRate(Cons.getLearningRate() / Cons.calculateScale(i, iterations));
-                System.out.println("(" + (int) i * 100 / iterations + "%)" + "ET-" + i + ": " + (sumErrorThreshold / ins.numInstances()) + " | LR: " + Cons.getLearningRate());
+                System.out.println("(" + (int) i * 100 / iterations + "%)" + "ET-" + i + ": " + errorThreshold + " | LR: " + Cons.getLearningRate());
             }
         }
 

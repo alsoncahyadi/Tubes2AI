@@ -81,7 +81,7 @@ public class Main {
         classifier.buildClassifier(train);
     }
 
-    public static void ffnn() throws Exception {
+    public static FeedForwardNN ffnn() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.print("Insert class index: ");
         int clsIndex = sc.nextInt();
@@ -138,6 +138,99 @@ public class Main {
             classifier = new FeedForwardNN(nInputLayer, nHiddenLayer, nOutputLayer, iterations);
         }
         classifier.buildClassifier(train);
+        return (FeedForwardNN) classifier;
+    }
+
+    public static FeedForwardNN ffnn(int clsIndex, int iter, int hid, double lr, double dc) throws Exception {
+
+        ////CHECK IF BOOLEAN
+        int numOutput = train.numClasses();
+        if (numOutput == 2) {
+            numOutput = 1;
+        }
+
+        ////INITIALIZATION PARAMETERS
+        int iterations = iter;
+        int nInputLayer = train.numAttributes() - 1;
+        int nHiddenLayer = hid;
+        int nOutputLayer = numOutput;
+
+        double learningRate = lr;
+        double decreaseConst = dc;
+
+        ////INITIALIZATION
+        Cons.setLearningRate(learningRate);
+        Cons.setDecreaseConst(decreaseConst);
+        if (nHiddenLayer == 0) {
+            classifier = new FeedForwardNN(nInputLayer, nOutputLayer, iterations);
+        } else {
+            classifier = new FeedForwardNN(nInputLayer, nHiddenLayer, nOutputLayer, iterations);
+        }
+        classifier.buildClassifier(train);
+        return (FeedForwardNN) classifier;
+    }
+
+    public static void batchFfnn(int batchSize) throws Exception {
+        //ASSUMPTION: ErrT never exceeds 100
+        double minErrT = 100;
+        FeedForwardNN bestFfnn = null;
+        FeedForwardNN currFfnn = null;
+        double[] errT = new double[batchSize];
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Input class index: ");
+        int clsIndex = sc.nextInt();
+
+        //SET CLASS INDEX
+        train.setClassIndex(clsIndex);
+        System.out.println("Selected class attribute: " + train.attribute(train.classIndex()));
+
+        //DELETE 26 or 27
+        if (clsIndex == 26) {
+            System.out.println("> Removing index 27:" + train.attribute(27).name());
+            Remove remove = new Remove();
+            remove.setAttributeIndices("28");
+            remove.setInputFormat(train);
+            train = Filter.useFilter(train, remove);
+            System.out.println("> Index 27 deleted");
+        } else if (clsIndex == 27) {
+            System.out.println("> Removing index 26:" + train.attribute(26).name());
+            Remove remove = new Remove();
+            remove.setAttributeIndices("27");
+            remove.setInputFormat(train);
+            train = Filter.useFilter(train, remove);
+            System.out.println("> Index 26 deleted");
+        }
+
+        System.out.print("Input number of iterations: ");
+        int iterations = sc.nextInt();
+        System.out.print("Input number of neurons in hidden layer: ");
+        int nHiddenLayer = sc.nextInt();
+        System.out.print("Input learning rate: ");
+        double learningRate = sc.nextDouble();
+        System.out.print("Input decrease constant: ");
+        double decreaseConst = sc.nextDouble();
+
+        for (int i = 0; i < batchSize; i++) {
+            System.out.println("*****************************");
+            System.out.println("*********" + i + " iteration **********");
+            System.out.println("*****************************");
+            System.out.println("");
+
+            currFfnn = ffnn(clsIndex, iterations, nHiddenLayer, learningRate, decreaseConst);
+            errT[i] = currFfnn.getErrorThreshold();
+            if (errT[i] < minErrT) {
+                minErrT = errT[i];
+                bestFfnn = currFfnn;
+            }
+        }
+        System.out.println("> Errors in batch:");
+        for (int i = 0; i < batchSize; i++) {
+            System.out.println("   >" + i + ": " + errT[i]);
+        }
+        classifier = bestFfnn;
+        System.out.println("Best ET in batch: " + bestFfnn.getErrorThreshold());
     }
 
     public static void fulltraining(Instances test) throws Exception {
@@ -238,7 +331,16 @@ public class Main {
             if ("1".equals(mvar)) {
                 naiveBayes();
             } else if ("2".equals(mvar)) {
-                ffnn();
+                System.out.println("Batch or Not: 1.Batch   2.Not Batch");
+                System.out.print("Select option: ");
+                mvar = sc.next();
+                if ("1".equals(mvar)) {
+                    System.out.print("Insert Number of batch size: ");
+                    int batchSize = sc.nextInt();
+                    batchFfnn(batchSize);
+                } else if ("2".equals(mvar)) {
+                    ffnn();
+                }
             }
 
         } else if ("2".equals(mvar)) {
