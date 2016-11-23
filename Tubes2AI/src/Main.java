@@ -8,7 +8,7 @@ import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
 
 import weka.filters.Filter;
-import weka.filters.supervised.attribute.Discretize;
+import weka.filters.unsupervised.attribute.Discretize;
 
 import java.io.File;
 import java.util.*;
@@ -46,13 +46,20 @@ public class Main {
     }
 
     public static void discretize() throws Exception {
-        //setup filter discretize
-        filter = new Discretize();
-        filter.setInputFormat(train);
-
-        //apply discretize
-        Instances filtered = Filter.useFilter(train, filter);
-        train = filtered;
+        //Filtering jadi nominal semua
+        Instances disc_dataset = null;
+        String[] options = new String[2];
+        options[0]="-R";
+        options[1]="first-last";
+        
+       
+        //Discretize filtering
+        Discretize disc = new Discretize();
+        disc.setOptions(options);
+        disc.setInputFormat(train);
+        disc_dataset = Filter.useFilter(train, disc);
+        
+        train = disc_dataset;
     }
 
     public static void naiveBayes() throws Exception {
@@ -62,20 +69,24 @@ public class Main {
         train.setClassIndex(clsIndex);
         System.out.println("Selected class attribute: " + train.attribute(train.classIndex()));
 
-        //DELETE 26 or 27
-        if (clsIndex == 26) {
-            System.out.println("> Removing index 27:" + train.attribute(27).name());
+        System.out.print("Do you want remove attribute ? (Y/N) ");
+        String rvar = sc.next();
+        Instances newDataset = null;
+        if ("Y".equals(rvar)) {
             Remove remove = new Remove();
-            remove.setAttributeIndices("28");
+            System.out.print("Remove attribute : ");
+            String atr = sc.next();
+            remove.setAttributeIndices(atr);
+            int a = Integer.parseInt(atr);
+            if(a<=clsIndex) {
+                clsIndex -= 1;
+            }
+            remove.setInvertSelection(false);
             remove.setInputFormat(train);
-            System.out.println("> Index 27 deleted:");
-        } else if (clsIndex == 27) {
-            System.out.println("> Removing index 26:" + train.attribute(26).name());
-            Remove remove = new Remove();
-            remove.setAttributeIndices("27");
-            remove.setInputFormat(train);
-            System.out.println("> Index 26 deleted");
+            newDataset = Filter.useFilter(train, remove);
+            newDataset.setClassIndex(clsIndex);
         }
+        train = newDataset;
 
         classifier = new NBayes();
         classifier.buildClassifier(train);
@@ -290,6 +301,19 @@ public class Main {
         eval.crossValidateModel(classifier, test, 10, new Random(1));
     }
 
+    public static void splitTest(Instances test, int a) throws Exception {
+        train.randomize(new java.util.Random(0));
+        int trainSize = (int) Math.round(test.numInstances()*a/100);
+        int testSize = test.numInstances() - trainSize;
+        Instances training = new Instances(test, 0, trainSize);
+        Instances testing = new Instances(test, trainSize, testSize);
+        
+        classifier.buildClassifier(training);
+        
+        eval = new Evaluation(training);
+        eval.evaluateModel(classifier,testing);
+    }
+
     public static void printEvalResult() throws Exception {
         //mencetak hasil evaluation ke layar
         System.out.println(classifier);
@@ -363,24 +387,42 @@ public class Main {
         System.out.print("Insert class index: ");
         int clsIndex = sc.nextInt();
         test.setClassIndex(clsIndex);
+        
+        //start to descretize
+        Instances disc_dataset = null;
+        String[] options = new String[2];
+        options[0]="-R";
+        options[1]="first-last";
+       
+        //Discretize filtering
+        filter = new Discretize();
+        filter.setOptions(options);
+        filter.setInputFormat(test);
+        disc_dataset = Filter.useFilter(test, filter);
+        
+        test = disc_dataset;
+        test.setClassIndex(clsIndex);
+        
         System.out.println("Selected class attribute: " + test.attribute(test.classIndex()));
 
-        //DELETE 26 or 27
-        if (clsIndex == 26) {
-            System.out.println("> Removing index 27:" + test.attribute(27).name());
+        System.out.print("Do you want remove attribute ? (Y/N) ");
+        String rvar = sc.next();
+        Instances newDataset = test;
+        if ("Y".equals(rvar)) {
             Remove remove = new Remove();
-            remove.setAttributeIndices("28");
+            System.out.print("Remove attribute : ");
+            String atr = sc.next();
+            remove.setAttributeIndices(atr);
+            int a = Integer.parseInt(atr);
+            if(a<=clsIndex) {
+                clsIndex -= 1;
+            }
+            remove.setInvertSelection(false);
             remove.setInputFormat(test);
-            test = Filter.useFilter(test, remove);
-            System.out.println("> Index 27 deleted");
-        } else if (clsIndex == 27) {
-            System.out.println("> Removing index 26:" + test.attribute(26).name());
-            Remove remove = new Remove();
-            remove.setAttributeIndices("27");
-            remove.setInputFormat(test);
-            test = Filter.useFilter(test, remove);
-            System.out.println("> Index 26 deleted");
+            newDataset = Filter.useFilter(test, remove);
+            newDataset.setClassIndex(clsIndex);
         }
+        test = newDataset;
         
         //memilih load atau pembelajaran baru
         System.out.println();
@@ -430,13 +472,18 @@ public class Main {
         System.out.println();
 
         
-        System.out.println("Schema 1. 10-fold Cross Validate 2. Full Training");
+        System.out.println("Schema 1. 10-fold Cross Validate 2. Full Training 3. Split Test");
         System.out.print("Use schema : ");
         String svar = sc.next();
         if ("1".equals(svar)) {
             crossValidate(test);
         } else if ("2".equals(svar)) {
             fulltraining(test);
+        }
+        else if ("3".equals(svar)) {
+            System.out.print("Jumlah percentase yang diinginkan : ");
+            int percent = sc.nextInt();
+            splitTest(test, percent);
         }
 
         //Mencetak hasil eval
