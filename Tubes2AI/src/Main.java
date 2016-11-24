@@ -133,8 +133,14 @@ public class Main {
 
         System.out.print("Input number of iterations: ");
         iterations = sc.nextInt();
-        System.out.print("Input number of neurons in hidden layer: ");
-        nHiddenLayer = sc.nextInt();
+        System.out.print("Input number of hidden layer: ");
+        if (sc.nextInt() == 1) {
+            System.out.print("Input number of neurons in hidden layer: ");
+            nHiddenLayer = sc.nextInt();
+        }
+        else {
+            nHiddenLayer = 0;
+        }
         System.out.print("Input learning rate: ");
         learningRate = sc.nextDouble();
         System.out.print("Input decrease constant: ");
