@@ -85,8 +85,8 @@ public class Main {
             remove.setInputFormat(train);
             newDataset = Filter.useFilter(train, remove);
             newDataset.setClassIndex(clsIndex);
+            train = newDataset;
         }
-        train = newDataset;
 
         classifier = new NBayes();
         classifier.buildClassifier(train);
@@ -427,8 +427,8 @@ public class Main {
             remove.setInputFormat(test);
             newDataset = Filter.useFilter(test, remove);
             newDataset.setClassIndex(clsIndex);
+            test = newDataset;
         }
-        test = newDataset;
         
         //memilih load atau pembelajaran baru
         System.out.println();
